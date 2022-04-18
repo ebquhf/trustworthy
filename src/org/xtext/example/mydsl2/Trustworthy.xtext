@@ -1,0 +1,9 @@
+grammar org.xtext.example.mydsl2.Trustworthy with org.eclipse.xtext.common.Terminals
+
+generate trustworthy "http://www.xtext.org/example/mydsl2/Trustworthy"
+
+Model:
+	greetings+=Greeting*;
+	
+Greeting:
+	'Hello' name=ID '!';
