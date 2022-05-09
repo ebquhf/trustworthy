@@ -7,6 +7,10 @@ import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
+import org.xtext.example.mydsl2.trustworthy.Room
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.xmi.impl.XMLResourceImpl
+import org.eclipse.emf.ecore.util.EcoreUtil
 
 /**
  * Generates code from your model files on save.
@@ -16,10 +20,57 @@ import org.eclipse.xtext.generator.IGeneratorContext
 class TrustworthyGenerator extends AbstractGenerator {
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
+		val room = resource.allContents.filter(Room).next
+		System::out.println("Anything")
+		room.display
+		room.generateOutputFile(fsa)
 //		fsa.generateFile('greetings.txt', 'People to greet: ' + 
 //			resource.allContents
 //				.filter(Greeting)
 //				.map[name]
 //				.join(', '))
 	}
+	
+	def void display(EObject obj){
+	val res = new XMLResourceImpl
+		res.contents.add(EcoreUtil::copy(obj))
+		System::out.println("Dump of model:")
+		res.save(System.out,null)
+		}
+	
+	def void generateOutputFile(Room room, IFileSystemAccess2 fsa){
+		fsa.generateFile("setup.xml",room.generateRoomContent)
+	}
+	
+	def CharSequence generateRoomContent(Room room){
+		'''<?xml version="1.0"?>
+		<Room>
+		    <Number>«room.name»</Number>
+		    «FOR a:room.sensors»
+		    		    «System::out.println(a)»
+		    	«FOR i : 1..a.amount»
+		    	<Sensor>
+		    			        <UID>«i»</UID>
+		    			        <Microphone>
+		    			            <OnTimer>300</OnTimer>
+		    			            <ListeningTimer>10000</ListeningTimer>
+		    			            <SendingTimer>500</SendingTimer>
+		    			        </Microphone>
+		    			        <Data>
+		    			            <SaveTimer>200</SaveTimer>
+		    			            <ProcessTimer>5000</ProcessTimer>
+		    			        </Data>
+		    			        <Wifi>
+		    			        	<SSID>«a.ssID»</SSID>
+		    			        	<Psw>«a.passwd»</Psw>
+		    			        </Wifi>
+		    			    </Sensor>	
+		    	«ENDFOR»
+		    	
+		    «ENDFOR»
+		    
+		</Room>
+		'''
+	}
+	
 }

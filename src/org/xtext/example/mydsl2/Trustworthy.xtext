@@ -6,8 +6,8 @@ Model:
 	rooms+=Room*;
 	
 Room:
-	'Room' name=ID | {SensorPart}'with' sensors+=Sensor*;
+	'Room' name=ID  'with' sensors+=Sensor*;
 
 Sensor:
-	amount=INT 'sensor' 'and' preset=ID 'preset'
+	amount=INT 'sensor' 'and' preset=ID 'preset' 'ssID:'ssID=ID ',' 'pass:'passwd=ID
 ;
