@@ -3,14 +3,83 @@ grammar org.xtext.example.mydsl2.Trustworthy with org.eclipse.xtext.common.Termi
 generate trustworthy "http://www.xtext.org/example/mydsl2/Trustworthy"
 
 Model:
-	'Setup:' rooms+=Room
+	'Setup:' rooms=Room
 	'Actions:' action=Action
-	
+	'Input:' input=Input
+	'Limits:' limit=Limit
+	'Rules:' rules=Rules
+	"Result:" result=Result
+;
+
+Rules:
+	'if' left=RuleType (operator=Operator right=RuleType)? "?" effect=(RuleTransition | RuleResult) 
+	(next=Rules)?
+;
+RuleTransition:
+	points=ValueOperator affected_parameter=ID
+;
+
+RuleResult:
+	 'conclude' result=ID
+;
+
+
+ValueOperator:
+	{Subtract} 'sub'(points=INT)? 'from' |{Add} 'add' (points=INT)? 'to'
+;
+
+Operator:
+	{GreaterThan} type='>' | {LessThan} type='<' | {GreaterEqual} type='>=' | {LessEqual} type='<='	
+;
+
+RuleType:
+	{RuleTypeID} name=ID | {RuleTypeExp} exp=Exp
+;
+
+Exp returns Expression:
+	Factor (('+' {Plus.left=current} | '-' {Minus.left=current} ) right=Factor)*
+;
+
+Factor returns Expression:
+	Primary (('*' {Mult.left=current} | '/' {Div.left=current} ) right=Primary)*
+;
+
+Primary returns Expression:
+	Number | Parenthesis 
+;
+
+Parenthesis returns Expression:
+	'(' Exp ')'
+;
+
+Number:
+	value=INT
+;
+
+Limit:
+name=ID '=' value=INT (next=Limit)?	
+;
+
+Input:
+	value=InputType (',' next=Input)? 
+;
+
+InputType:
+	InputInt | InputBool
+;
+
+InputInt:
+	'int' name=ID
+;
+
+InputBool:
+	'bool' name=ID 
 ;
 
 Action:
-	text+=ID ("," next=Action)? 
+	text+=ID (',' next=Action)? 
 ;
+	
 	
 Room:
 	'Room' name=ID  'with' sensors+=Sensor*
@@ -18,4 +87,13 @@ Room:
 
 Sensor:
 	amount=INT 'sensor' 'and' preset=ID 'preset' 'ssID:'ssID=ID ',' 'pass:'passwd=ID
+;
+
+Result:
+	'if' left=RuleType operator=Operator right=RuleType ":" 'execute' action=ID 
+	(next=Result)? | ElseResult
+;
+
+ElseResult:
+	"else:" left=RuleType
 ;
