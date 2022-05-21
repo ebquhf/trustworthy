@@ -3,10 +3,18 @@ grammar org.xtext.example.mydsl2.Trustworthy with org.eclipse.xtext.common.Termi
 generate trustworthy "http://www.xtext.org/example/mydsl2/Trustworthy"
 
 Model:
-	rooms+=Room*;
+	'Setup:' rooms+=Room
+	'Actions:' action=Action
+	
+;
+
+Action:
+	text+=ID ("," next=Action)? 
+;
 	
 Room:
-	'Room' name=ID  'with' sensors+=Sensor*;
+	'Room' name=ID  'with' sensors+=Sensor*
+;
 
 Sensor:
 	amount=INT 'sensor' 'and' preset=ID 'preset' 'ssID:'ssID=ID ',' 'pass:'passwd=ID
